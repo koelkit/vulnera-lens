@@ -1,2 +1,2 @@
 # vulnera-lens
-simple-vulnerability-calculator
+simple vulnerability calculator
