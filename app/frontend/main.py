@@ -90,32 +90,47 @@ else:
 
 st.markdown("---")
 
-# Injecteer CSS om de Streamlit button geforceerd ROND en groot te maken (Ookla style)
+# CSS om de knop PERFECT CENTRAAL, 100% ROND en met een vette gloed te maken
 st.markdown(
     """
     <style>
-    div.stButton > button {
-        display: block !important;
-        margin: 0 auto !important;
+    /* Centreer de knop-container op het scherm */
+    .stButton {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-top: 20px !important;
+    }
+    
+    /* Maak de knop zelf een perfecte, strakke cirkel (Ookla stijl) */
+    .stButton > button {
         width: 160px !important;
         height: 160px !important;
         border-radius: 50% !important;
         border: 4px solid #2563eb !important;
         background-color: #020617 !important;
         color: #ffffff !important;
-        font-size: 20px !important;
-        font-weight: bold !important;
+        font-size: 22px !important;
+        font-weight: 700 !important;
         letter-spacing: 2px !important;
-        box-shadow: 0 0 25px rgba(37, 99, 235, 0.4) !important;
+        box-shadow: 0 0 30px rgba(37, 99, 235, 0.4) !important;
         transition: all 0.3s ease-in-out !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
-    div.stButton > button:hover {
+    
+    /* Hover effecten voor de ronde knop */
+    .stButton > button:hover {
         transform: scale(1.05) !important;
-        box-shadow: 0 0 35px rgba(37, 99, 235, 0.7) !important;
+        box-shadow: 0 0 45px rgba(37, 99, 235, 0.8) !important;
         background-color: #2563eb !important;
         color: #ffffff !important;
+        border-color: #3b82f6 !important;
     }
-    div.stButton > button:active {
+    
+    .stButton > button:active {
         transform: scale(0.95) !important;
     }
     </style>
@@ -126,17 +141,16 @@ st.markdown(
 # Placeholder klaarzetten voor de animatie
 animation_placeholder = st.empty()
 
-# 6. De Actieknop (Ronde Ookla GO-button)
-if st.button("GO"):
+# 6. De Actieknop (Nu met de tekst SCAN en volledig gecentreerd)
+if st.button("SCAN"):
     if not vendor or not product:
         st.error("❌ Please fill in both the Vendor and Product fields.")
     else:
-        # Start direct de Speedtest-style Cirkel Animatie op exact dezelfde plek
+        # Start direct de Speedtest-style Cirkel Animatie op exact dezelfde centrale plek
         for progress in range(0, 101, 2):
             time.sleep(0.04)
             angle = progress * 3.6
             
-            # GECORRIGEERD: Alle enkele accolades in de CSS zijn nu dubbele {{ }} geworden
             animation_placeholder.markdown(
                 f"""
                 <div class="speedtest-container">
@@ -146,9 +160,10 @@ if st.button("GO"):
                     <div class="loading-text">MAPPING CVE REGISTRY...</div>
                 </div>
                 <style>
+                /* Verberg de startknop tijdens het laden */
                 div.stButton {{ display: none !important; }}
                 
-                .speedtest-container {{ display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }}
+                .speedtest-container {{ display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; width: 100%; }}
                 .circular-progress {{ position: relative; height: 160px; width: 160px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(37, 99, 235, 0.4); }}
                 .circular-progress::before {{ content: ""; position: absolute; height: 120px; width: 120px; border-radius: 50%; background-color: #020617; }}
                 .value-container {{ position: relative; font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 700; color: #ffffff; }}
