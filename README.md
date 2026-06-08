@@ -1,2 +1,2 @@
-# vulnera-lens
+# Lumenist
 simple vulnerability calculator
