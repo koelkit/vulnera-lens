@@ -2,7 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 import time
 
-# ... (your existing setup and input code above) ...
+# ... (Hierboven staat je bestaande setup en de inputs voor vendor, product, search_method, etc.) ...
 
 st.markdown("---")
 
@@ -11,7 +11,8 @@ animation_placeholder = st.empty()
 
 # The trigger button
 if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
-    if not vendor or not product:
+    # VEILIGHEIDSCHECK: Controleer of de variabelen überhaupt bestaan en gevuld zijn
+    if 'vendor' not in locals() or 'product' not in locals() or not vendor or not product:
         st.error("❌ Please fill in both the Vendor and Product fields.")
     else:
         # 1. Inject the Custom Circular Speedtest-style Animation
@@ -80,9 +81,8 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
         )
 
         # 2. Simulate the smooth sweep to 100% while fetching data
-        # (This updates the conic-gradient angle smoothly over 100 steps)
         for progress in range(0, 101, 2):
-            time.sleep(0.04) # Adjust speed of the sweep here
+            time.sleep(0.04) # Snelheid van de animatie
             angle = progress * 3.6
             
             # Dynamically update the circular fill and percentage text
@@ -109,4 +109,4 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
         # 3. Clear the animation once it hits 100% and fetch real data
         animation_placeholder.empty()
         
-        # ... (Your existing API call code and results loop goes here) ...
+        # ... (Vanaf hier loopt je bestaande code voor de API call en de resultaten-weergave) ...
