@@ -1,5 +1,5 @@
 # Simple Vulnerability Calculator
-### The easy, year-based cyber risk scanner for startups & small businesses.
+### The easy, cyber risk calculator for startups & small businesses.
 
 Most vulnerability databases are complex, full of jargon, and unreadable for non-technical founders. 
 This tool democratizes cybersecurity by helping you quickly identify known security risks (CVEs) based on the year you last updated your software or server.
