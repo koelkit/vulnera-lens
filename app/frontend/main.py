@@ -126,7 +126,7 @@ st.markdown(
 # Placeholder klaarzetten voor de animatie
 animation_placeholder = st.empty()
 
-# 6. De Actieknop (is nu door de CSS hierboven een grote ronde schijf!)
+# 6. De Actieknop (Ronde Ookla GO-button)
 if st.button("GO"):
     if not vendor or not product:
         st.error("❌ Please fill in both the Vendor and Product fields.")
@@ -136,6 +136,7 @@ if st.button("GO"):
             time.sleep(0.04)
             angle = progress * 3.6
             
+            # GECORRIGEERD: Alle enkele accolades in de CSS zijn nu dubbele {{ }} geworden
             animation_placeholder.markdown(
                 f"""
                 <div class="speedtest-container">
@@ -145,15 +146,14 @@ if st.button("GO"):
                     <div class="loading-text">MAPPING CVE REGISTRY...</div>
                 </div>
                 <style>
-                /* Verberg de originele knop tijdens het laden */
-                div.stButton { display: none !important; }
+                div.stButton {{ display: none !important; }}
                 
-                .speedtest-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
-                .circular-progress { position: relative; height: 160px; width: 160px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(37, 99, 235, 0.4); }
-                .circular-progress::before { content: ""; position: absolute; height: 120px; width: 120px; border-radius: 50%; background-color: #020617; }
-                .value-container { position: relative; font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 700; color: #ffffff; }
-                .loading-text { margin-top: 15px; font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 2px; color: #2563eb; font-weight: 600; animation: pulse 1.5s infinite; }
-                @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+                .speedtest-container {{ display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }}
+                .circular-progress {{ position: relative; height: 160px; width: 160px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(37, 99, 235, 0.4); }}
+                .circular-progress::before {{ content: ""; position: absolute; height: 120px; width: 120px; border-radius: 50%; background-color: #020617; }}
+                .value-container {{ position: relative; font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 700; color: #ffffff; }}
+                .loading-text {{ margin-top: 15px; font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 2px; color: #2563eb; font-weight: 600; animation: pulse 1.5s infinite; }}
+                @keyframes pulse {{ 0% {{ opacity: 0.6; }} 50% {{ opacity: 1; }} 100% {{ opacity: 0.6; }} }}
                 </style>
                 """,
                 unsafe_allow_html=True
