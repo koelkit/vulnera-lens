@@ -3,40 +3,74 @@ import sys
 import os
 import time
 
-# 1. Zorg dat de backend map correct wordt gevonden voor de API functionaliteit
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from backend.api import fetch_cve_data
-from backend.utils import filter_cves_by_year
+# 1. Zorg dat Python de backend map kan vinden voor de API functionaliteit
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.abspath(os.path.join(current_dir, '..'))
+if parent_dir not in sys.path:
+    sys.path.append(parent_dir)
 
-# 2. Pagina configuratie (Dark mode basis)
+try:
+    from backend.api import fetch_cve_data
+    from backend.utils import filter_cves_by_year
+except ImportError:
+    # Fallback voor als de mappenstructuur lokaal afwijkt
+    sys.path.append(os.path.abspath(os.path.join(current_dir, '../../')))
+    from backend.api import fetch_cve_data
+    from backend.utils import filter_cves_by_year
+
+# 2. Pagina configuratie (Strakke dark mode basis)
 st.set_page_config(
     page_title="Lumenist",
     page_icon="🛡️",
     layout="centered"
 )
 
-# 3. Injecteer je strakke CSS styling
-try:
-    with open("app/frontend/style.css") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-except FileNotFoundError:
-    # Veiligheidsklep voor als het pad lokaal anders is
-    with open("style.css") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# 3. Dynamisch CSS en Content paden bepalen (Voorkomt 'File Not Found' crashes)
+possible_css_paths = [
+    os.path.join(current_dir, "style.css"),
+    "app/frontend/style.css",
+    "style.css"
+]
 
-# 4. Laad en toon de Markdown teksten (De bovenkant van je site!)
-try:
-    with open("app/frontend/content.md") as f:
-        content = f.read()
-except FileNotFoundError:
-    with open("content.md") as f:
-        content = f.read()
+possible_md_paths = [
+    os.path.join(current_dir, "content.md"),
+    "app/frontend/content.md",
+    "content.md"
+]
 
-header_part, input_part = content.split("---")
-st.markdown(header_part)
-st.markdown(input_part)
+# Laad CSS
+css_content = ""
+for path in possible_css_paths:
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            css_content = f.read()
+        break
 
-# 5. Gebruikersinvoer velden (Eerst aanmaken zodat ze BESTAAN!)
+if css_content:
+    st.markdown(f"<style>{css_content}</style>", unsafe_allow_html=True)
+
+# Laad Content.md
+md_content = ""
+for path in possible_md_paths:
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            md_content = f.read()
+        break
+
+# 4. Toon de content (De bovenkant van je site!)
+if md_content:
+    if "---" in md_content:
+        header_part, input_part = md_content.split("---", 1)
+        st.markdown(header_part)
+        st.markdown(input_part)
+    else:
+        st.markdown(md_content)
+else:
+    # Ultra-veilige fallback als content.md echt onbereikbaar is
+    st.title("🛡️ LUMENIST")
+    st.subheader("Simpele Cyber-Risico Calculator voor Startups")
+
+# 5. Invoervelden voor de gebruiker
 col1, col2 = st.columns(2)
 with col1:
     vendor = st.text_input("Vendor / Manufacturer", placeholder="e.g., apache, microsoft").strip()
@@ -58,17 +92,17 @@ else:
 
 st.markdown("---")
 
-# 6. Placeholder klaarzetten voor de cirkel-animatie
+# Placeholder klaarzetten voor de snelheidsmeter
 animation_placeholder = st.empty()
 
-# 7. De Actieknop
+# 6. De Actieknop
 if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
     if not vendor or not product:
         st.error("❌ Please fill in both the Vendor and Product fields.")
     else:
         # Start de Speedtest-style Cirkel Animatie
         for progress in range(0, 101, 2):
-            time.sleep(0.04)  # Snelheid van de animatie
+            time.sleep(0.04)  # Snelheid van het ronddraaien
             angle = progress * 3.6
             
             animation_placeholder.markdown(
@@ -94,7 +128,7 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
         # Maak de animatie leeg zodra hij op 100% staat
         animation_placeholder.empty()
         
-        # Voer de backend API-koppeling uit
+        # Haal de echte backend data op
         with st.spinner("Fetching final results..."):
             raw_data = fetch_cve_data(vendor, product)
             
@@ -116,7 +150,7 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
                                 "why_patch": "Review details below."
                             })
 
-                # Resultaten tonen
+                # Resultaten op het scherm tonen
                 if not results:
                     st.info(
                         "📊 **Risk Profile: Low**\n\n"
@@ -128,4 +162,16 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
                     
                     for vuln in results[:30]:
                         severity = vuln.get('severity', 'Unknown')
-                        if severity != "Unknown" and float
+                        
+                        if severity != "Unknown" and float(severity) >= 7.0:
+                            badge = f"🔴 CRITICAL/HIGH ({severity})"
+                        elif severity != "Unknown" and float(severity) >= 4.0:
+                            badge = f"🟠 MEDIUM ({severity})"
+                        else:
+                            badge = f"🟡 LOW ({severity})"
+                            
+                        with st.expander(f"{vuln.get('id', 'CVE')} - {badge}"):
+                            st.markdown("### 🔍 What can this do?")
+                            st.write(vuln.get('dummy_impact', 'N/A'))
+                            st.markdown("### 🛠️ Why should you patch this?")
+                            st.write(vuln.get('why_patch', 'N/A'))
