@@ -1,4 +1,4 @@
-# 🛡️ Simple Vulnerability Calculator
+# Simple Vulnerability Calculator
 ### The easy, year-based cyber risk scanner for startups & small businesses.
 
 Most vulnerability databases are complex, full of jargon, and unreadable for non-technical founders. 
