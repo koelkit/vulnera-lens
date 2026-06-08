@@ -130,6 +130,7 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
         with st.spinner("Fetching final results..."):
             raw_data = fetch_cve_data(vendor, product)
             
+            # GECORRIGEERD: Hier staat nu de dubbele punt aan het einde!
             if isinstance(raw_data, dict) and "error" in raw_data:
                 st.error(f"❌ {raw_data['error']}")
             else:
@@ -161,6 +162,7 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
                     for vuln in results[:30]:
                         severity = vuln.get('severity', 'Unknown')
                         
+                        # GECORRIGEERD: Alle if/elif statements zijn hier netjes afgesloten met een dubbele punt
                         if severity != "Unknown" and float(severity) >= 7.0:
                             badge = f"🔴 CRITICAL/HIGH ({severity})"
                         elif severity != "Unknown" and float(severity) >= 4.0:
