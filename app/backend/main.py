@@ -10,7 +10,7 @@ from backend.utils import filter_cves_by_year
 # 1. Page Configuration (Dark theme foundation)
 st.set_page_config(
     page_title="Simple Vulnerability Calculator",
-    page_icon="🛡️",
+    page_icon="",
     layout="centered"
 )
 
@@ -106,6 +106,6 @@ if st.button("🚀 Calculate Cyber Risks", use_container_width=True):
 # 7. De Juridische Disclaimer onderaan de site
 st.markdown("---")
 st.caption(
-    "⚖️ **Legal Disclaimer:** This calculator provides a risk assessment based on publicly available CVE data. "
+    " **Legal Disclaimer:** This calculator provides a risk assessment based on publicly available CVE data. "
     "It does not constitute a full security audit. The creator cannot be held liable for any damages."
 )
