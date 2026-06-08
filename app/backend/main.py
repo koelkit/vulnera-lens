@@ -22,6 +22,7 @@ with open("app/frontend/style.css") as f:
 with open("app/frontend/content.md") as f:
     content = f.read()
 
+# Verander de weergave zodat het 'Simpel.' heet
 header_part, input_part = content.split("---")
 st.markdown(header_part)
 st.markdown(input_part)
