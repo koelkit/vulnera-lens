@@ -1,43 +1,30 @@
-def translate_to_dummy_language(summary):
-    """
-    Scans the technical CVE summary for keywords and translates it
-    into clear business risks + a reason why to patch.
-    """
-    summary_lower = summary.lower()
-    
-    impact = "This vulnerability could allow attackers to disrupt your software or access restricted data."
-    why_patch = "To prevent unauthorized changes to your system and keep your business running smoothly."
-    
-    if "execute arbitrary code" in summary_lower or "remote code execution" in summary_lower or "rce" in summary_lower:
-        impact = "💥 **Total Takeover:** A hacker can completely take over your server from anywhere in the world. They can run malicious software, steal files, or lock you out."
-        why_patch = "This is the most dangerous type of attack. Failing to patch this allows cybercriminals to deploy ransomware and shut down your business operations."
-        
-    elif "denial of service" in summary_lower or "crash" in summary_lower or "dos" in summary_lower:
-        impact = "🛑 **System Crash:** An attacker can overload your server, causing it to freeze or crash. Your customers won't be able to access your website or services."
-        why_patch = "To prevent costly downtime. If your platform goes offline, you risk losing revenue, customer trust, and brand reputation."
-        
-    elif "information disclosure" in summary_lower or "obtain information" in summary_lower or "leak" in summary_lower or "read" in summary_lower:
-        impact = "🔓 **Data Leak:** An attacker can peek inside your server and read private information, such as customer credentials, credit card details, or company secrets."
-        why_patch = "To protect user privacy and comply with regulations (like GDPR). Data leaks can result in severe legal fines and lawsuits."
-        
-    elif "gain privileges" in summary_lower or "privilege escalation" in summary_lower or "bypass security" in summary_lower:
-        impact = "🔑 **Security Bypass:** Someone with low-level access can trick the system into granting them 'Admin' rights, allowing them to bypass security controls entirely."
-        why_patch = "To maintain strict access control. Unauthorized users shouldn't have the power to modify system settings, delete logs, or view financial data."
-
-    return impact, why_patch
-
-
 def filter_cves_by_year(cve_data, start_year):
     """
     Filters the fetched CVE data based on the software's age/last update year.
+    Safe against API errors and unexpected dictionary responses.
     """
     filtered_results = []
+    
+    # VEILIGHEIDSKLEP 1: Als de API een error-bericht heeft gestuurd, breek direct veilig af
     if isinstance(cve_data, dict) and "error" in cve_data:
         return filtered_results
 
-    results = cve_data if isinstance(cve_data, list) else cve_data.get('results', [])
+    # VEILIGHEIDSKLEP 2: Zorg dat we ALTIJD een lijst hebben om doorheen te loopen
+    if isinstance(cve_data, dict):
+        # Sommige API-endpoints sturen een dict met een 'results' key
+        results = cve_data.get('results', [])
+    elif isinstance(cve_data, list):
+        results = cve_data
+    else:
+        # Als de data compleet onverwacht is (bijv. een losse string), voorkom een crash
+        return filtered_results
 
+    # De loop is nu 100% veilig omdat 'results' gegarandeerd een lijst is
     for cve in results:
+        # Extra check: zorg dat het individuele CVE-item ook echt een dictionary is
+        if not isinstance(cve, dict):
+            continue
+            
         cve_id = cve.get('id', '')
         try:
             if cve_id.startswith("CVE-"):
