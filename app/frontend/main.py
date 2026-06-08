@@ -163,6 +163,7 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
                     for vuln in results[:30]:
                         severity = vuln.get('severity', 'Unknown')
                         
+                        # Syntax volledig hersteld met correcte dubbele punten (:)
                         if severity != "Unknown" and float(severity) >= 7.0:
                             badge = f"🔴 CRITICAL/HIGH ({severity})"
                         elif severity != "Unknown" and float(severity) >= 4.0:
