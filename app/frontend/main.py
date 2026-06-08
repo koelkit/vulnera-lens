@@ -90,17 +90,50 @@ else:
 
 st.markdown("---")
 
-# Placeholder klaarzetten voor de snelheidsmeter
+# Injecteer CSS om de Streamlit button geforceerd ROND en groot te maken (Ookla style)
+st.markdown(
+    """
+    <style>
+    div.stButton > button {
+        display: block !important;
+        margin: 0 auto !important;
+        width: 160px !important;
+        height: 160px !important;
+        border-radius: 50% !important;
+        border: 4px solid #2563eb !important;
+        background-color: #020617 !important;
+        color: #ffffff !important;
+        font-size: 20px !important;
+        font-weight: bold !important;
+        letter-spacing: 2px !important;
+        box-shadow: 0 0 25px rgba(37, 99, 235, 0.4) !important;
+        transition: all 0.3s ease-in-out !important;
+    }
+    div.stButton > button:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0 0 35px rgba(37, 99, 235, 0.7) !important;
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+    }
+    div.stButton > button:active {
+        transform: scale(0.95) !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Placeholder klaarzetten voor de animatie
 animation_placeholder = st.empty()
 
-# 6. De Actieknop
-if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
+# 6. De Actieknop (is nu door de CSS hierboven een grote ronde schijf!)
+if st.button("GO"):
     if not vendor or not product:
         st.error("❌ Please fill in both the Vendor and Product fields.")
     else:
-        # Start de Speedtest-style Cirkel Animatie
+        # Start direct de Speedtest-style Cirkel Animatie op exact dezelfde plek
         for progress in range(0, 101, 2):
-            time.sleep(0.04)  # Snelheid van het ronddraaien
+            time.sleep(0.04)
             angle = progress * 3.6
             
             animation_placeholder.markdown(
@@ -112,12 +145,15 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
                     <div class="loading-text">MAPPING CVE REGISTRY...</div>
                 </div>
                 <style>
-                .speedtest-container {{ display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }}
-                .circular-progress {{ position: relative; height: 180px; width: 180px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(37, 99, 235, 0.2); }}
-                .circular-progress::before {{ content: ""; position: absolute; height: 140px; width: 140px; border-radius: 50%; background-color: #020617; }}
-                .value-container {{ position: relative; font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 700; color: #ffffff; }}
-                .loading-text {{ margin-top: 15px; font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 2px; color: #2563eb; font-weight: 600; animation: pulse 1.5s infinite; }}
-                @keyframes pulse {{ 0% {{ opacity: 0.6; }} 50% {{ opacity: 1; }} 100% {{ opacity: 0.6; }} }}
+                /* Verberg de originele knop tijdens het laden */
+                div.stButton { display: none !important; }
+                
+                .speedtest-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
+                .circular-progress { position: relative; height: 160px; width: 160px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(37, 99, 235, 0.4); }
+                .circular-progress::before { content: ""; position: absolute; height: 120px; width: 120px; border-radius: 50%; background-color: #020617; }
+                .value-container { position: relative; font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 700; color: #ffffff; }
+                .loading-text { margin-top: 15px; font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 2px; color: #2563eb; font-weight: 600; animation: pulse 1.5s infinite; }
+                @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
                 </style>
                 """,
                 unsafe_allow_html=True
@@ -130,7 +166,6 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
         with st.spinner("Fetching final results..."):
             raw_data = fetch_cve_data(vendor, product)
             
-            # GECORRIGEERD: Hier staat nu de dubbele punt aan het einde!
             if isinstance(raw_data, dict) and "error" in raw_data:
                 st.error(f"❌ {raw_data['error']}")
             else:
@@ -162,7 +197,6 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
                     for vuln in results[:30]:
                         severity = vuln.get('severity', 'Unknown')
                         
-                        # GECORRIGEERD: Alle if/elif statements zijn hier netjes afgesloten met een dubbele punt
                         if severity != "Unknown" and float(severity) >= 7.0:
                             badge = f"🔴 CRITICAL/HIGH ({severity})"
                         elif severity != "Unknown" and float(severity) >= 4.0:
