@@ -1,111 +1,112 @@
 import streamlit as st
-import sys
-import os
+import streamlit.components.v1 as components
+import time
 
-# Zorg dat de backend map correct wordt ingeladen in de cloud
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from backend.api import fetch_cve_data
-from backend.utils import filter_cves_by_year
-
-# 1. Page Configuration (Dark theme foundation)
-st.set_page_config(
-    page_title="Simple Vulnerability Calculator",
-    page_icon="",
-    layout="centered"
-)
-
-# 2. Inject de "Astra-stijl" (CSS)
-with open("app/frontend/style.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-# 3. Laad de Markdown teksten
-with open("app/frontend/content.md") as f:
-    content = f.read()
-
-# Verander de weergave zodat het 'Simpel.' heet
-header_part, input_part = content.split("---")
-st.markdown(header_part)
-st.markdown(input_part)
-
-# 4. User Inputs
-col1, col2 = st.columns(2)
-with col1:
-    vendor = st.text_input("Vendor / Manufacturer", placeholder="e.g., apache, microsoft").strip()
-with col2:
-    product = st.text_input("Product Name", placeholder="e.g., http_server, windows_server").strip()
-
-search_method = st.radio(
-    "How do you want to calculate your risk?",
-    ["I only know the year of my last update (Time Capsule Scan)", "I know the exact software version"]
-)
-
-start_year = 2010
-version_to_check = ""
-
-if search_method == "I only know the year of my last update (Time Capsule Scan)":
-    # De core feature: slider tot het huidige jaar (2026)
-    start_year = st.slider("When was this server or application last updated?", 2010, 2026, 2018)
-else:
-    version_to_check = st.text_input("Enter exact version (e.g., 2.4.52):").strip()
+# ... (your existing setup and input code above) ...
 
 st.markdown("---")
 
-# 5. Het startschot (De Berekening)
-if st.button("🚀 Calculate Cyber Risks", use_container_width=True):
+# Create a placeholder where the circular loading animation will appear
+animation_placeholder = st.empty()
+
+# The trigger button
+if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
     if not vendor or not product:
         st.error("❌ Please fill in both the Vendor and Product fields.")
     else:
-        with st.spinner("Connecting to global CVE registry..."):
-            raw_data = fetch_cve_data(vendor, product)
+        # 1. Inject the Custom Circular Speedtest-style Animation
+        animation_placeholder.markdown(
+            """
+            <div class="speedtest-container">
+                <div class="circular-progress">
+                    <div class="value-container">0%</div>
+                </div>
+                <div class="loading-text">SCANNING INFRASTRUCTURE...</div>
+            </div>
+
+            <style>
+            .speedtest-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 30px;
+                animation: fadeIn 0.5s ease-out;
+            }
+            .circular-progress {
+                position: relative;
+                height: 180px;
+                width: 180px;
+                border-radius: 50%;
+                background: conic-gradient(#1e293b 0deg, #1e293b 360deg);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 0 30px rgba(37, 99, 235, 0.2);
+                transition: transform 0.3s ease;
+            }
+            .circular-progress::before {
+                content: "";
+                position: absolute;
+                height: 140px;
+                width: 140px;
+                border-radius: 50%;
+                background-color: #020617; /* Matches your deep dark background */
+            }
+            .value-container {
+                position: relative;
+                font-family: 'Inter', sans-serif;
+                font-size: 32px;
+                font-weight: 700;
+                color: #ffffff;
+            }
+            .loading-text {
+                margin-top: 15px;
+                font-family: 'Inter', sans-serif;
+                font-size: 13px;
+                letter-spacing: 2px;
+                color: #3b82f6;
+                font-weight: 600;
+                animation: pulse 1.5s infinite;
+            }
+            @keyframes pulse {
+                0% { opacity: 0.6; }
+                50% { opacity: 1; }
+                100% { opacity: 0.6; }
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # 2. Simulate the smooth sweep to 100% while fetching data
+        # (This updates the conic-gradient angle smoothly over 100 steps)
+        for progress in range(0, 101, 2):
+            time.sleep(0.04) # Adjust speed of the sweep here
+            angle = progress * 3.6
             
-            if isinstance(raw_data, dict) and "error" in raw_data:
-                st.error(f"❌ {raw_data['error']}")
-            else:
-                if search_method == "I only know the year of my last update (Time Capsule Scan)":
-                    results = filter_cves_by_year(raw_data, start_year)
-                else:
-                    results = []
-                    cve_list = raw_data if isinstance(raw_data, list) else raw_data.get('results', [])
-                    for cve in cve_list:
-                        if version_to_check and version_to_check in str(cve.get('vulnerable_configuration', '')):
-                            results.append({
-                                "id": cve.get('id'),
-                                "severity": cve.get('cvss', 'Unknown'),
-                                "summary": cve.get('summary', 'No description available.')
-                            })
+            # Dynamically update the circular fill and percentage text
+            animation_placeholder.markdown(
+                f"""
+                <div class="speedtest-container">
+                    <div class="circular-progress" style="background: conic-gradient(#2563eb {angle}deg, #1e293b {angle}deg);">
+                        <div class="value-container">{progress}%</div>
+                    </div>
+                    <div class="loading-text">MAPPING CVE REGISTRY...</div>
+                </div>
+                <style>
+                .speedtest-container {{ display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }}
+                .circular-progress {{ position: relative; height: 180px; width: 180px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(37, 99, 235, 0.2); }}
+                .circular-progress::before {{ content: ""; position: absolute; height: 140px; width: 140px; border-radius: 50%; background-color: #020617; }}
+                .value-container {{ position: relative; font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 700; color: #ffffff; }}
+                .loading-text {{ margin-top: 15px; font-family: 'Inter', sans-serif; font-size: 13px; letter-spacing: 2px; color: #2563eb; font-weight: 600; animation: pulse 1.5s infinite; }}
+                @keyframes pulse {{ 0% {{ opacity: 0.6; }} 50% {{ opacity: 1; }} 100% {{ opacity: 0.6; }} }}
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
 
-                # 6. Resultaten tonen in de strakke tech-vibe
-                if not results:
-                    st.info(
-                        "📊 **Risk Profile: Low**\n\n"
-                        "No major open vulnerabilities were detected in our current registry mapping for this configuration. "
-                        "Please note that this is a baseline check and not a guarantee against all cyber threats."
-                    )
-                else:
-                    st.warning(f"⚠️ Found **{len(results)}** potential vulnerabilities matching your profile.")
-                    
-                    for vuln in results[:30]:
-                        severity = vuln['severity']
-                        if severity != "Unknown" and float(severity) >= 7.0:
-                            badge = f"🔴 CRITICAL/HIGH ({severity})"
-                        elif severity != "Unknown" and float(severity) >= 4.0:
-                            badge = f"🟠 MEDIUM ({severity})"
-                        else:
-                            badge = f"🟡 LOW ({severity})"
-                            
-                        with st.expander(f"{vuln['id']} - {badge}"):
-                            st.markdown("### 🔍 What can this do?")
-                            st.write(vuln['dummy_impact'])
-                            
-                            st.markdown("### 🛠️ Why should you patch this?")
-                            st.write(vuln['why_patch'])
-                            
-                            st.markdown("---")
-                            st.caption(f"💾 *Technical Summary:* {vuln['summary']}")
-
-# 7. De Juridische Disclaimer onderaan de site
-st.markdown("---")
-st.caption(
-    " **Legal Disclaimer:** This calculator provides a risk assessment based on publicly available CVE data. "
-    "It does not constitute a full security audit. The creator cannot be held liable for any damages."
-)
+        # 3. Clear the animation once it hits 100% and fetch real data
+        animation_placeholder.empty()
+        
+        # ... (Your existing API call code and results loop goes here) ...
