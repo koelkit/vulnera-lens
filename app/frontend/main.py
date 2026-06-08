@@ -211,3 +211,30 @@ if st.button("SCAN"):
                                 "summary": cve.get('summary', 'No description available.'),
                                 "dummy_impact": "Analysis pending...",
                                 "why_patch": "Review details below."
+                            })
+
+                # Resultaten op het scherm tonen
+                if not results:
+                    st.info(
+                        "📊 **Risk Profile: Low**\n\n"
+                        "No major open vulnerabilities were detected in our current registry mapping for this configuration. "
+                        "Please note that this is a baseline check and not a guarantee against all cyber threats."
+                    )
+                else:
+                    st.warning(f"⚠️ Found **{len(results)}** potential vulnerabilities matching your profile.")
+                    
+                    for vuln in results[:30]:
+                        severity = vuln.get('severity', 'Unknown')
+                        
+                        if severity != "Unknown" and float(severity) >= 7.0:
+                            badge = f"🔴 CRITICAL/HIGH ({severity})"
+                        elif severity != "Unknown" and float(severity) >= 4.0:
+                            badge = f"🟠 MEDIUM ({severity})"
+                        else:
+                            badge = f"🟡 LOW ({severity})"
+                            
+                        with st.expander(f"{vuln.get('id', 'CVE')} - {badge}"):
+                            st.markdown("### 🔍 What can this do?")
+                            st.write(vuln.get('dummy_impact', 'N/A'))
+                            st.markdown("### 🛠️ Why should you patch this?")
+                            st.write(vuln.get('why_patch', 'N/A'))
