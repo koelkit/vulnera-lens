@@ -13,7 +13,6 @@ try:
     from backend.api import fetch_cve_data
     from backend.utils import filter_cves_by_year
 except ImportError:
-    # Fallback voor als de mappenstructuur lokaal afwijkt
     sys.path.append(os.path.abspath(os.path.join(current_dir, '../../')))
     from backend.api import fetch_cve_data
     from backend.utils import filter_cves_by_year
@@ -25,7 +24,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# 3. Dynamisch CSS en Content paden bepalen (Voorkomt 'File Not Found' crashes)
+# 3. Correcte paden ingesteld op de 'app' mappenstructuur
 possible_css_paths = [
     os.path.join(current_dir, "style.css"),
     "app/frontend/style.css",
@@ -66,7 +65,6 @@ if md_content:
     else:
         st.markdown(md_content)
 else:
-    # Ultra-veilige fallback als content.md echt onbereikbaar is
     st.title("🛡️ LUMENIST")
     st.subheader("Simpele Cyber-Risico Calculator voor Startups")
 
@@ -163,7 +161,6 @@ if st.button("🚀 CALCULATE CYBER RISKS", use_container_width=True):
                     for vuln in results[:30]:
                         severity = vuln.get('severity', 'Unknown')
                         
-                        # Syntax volledig hersteld met correcte dubbele punten (:)
                         if severity != "Unknown" and float(severity) >= 7.0:
                             badge = f"🔴 CRITICAL/HIGH ({severity})"
                         elif severity != "Unknown" and float(severity) >= 4.0:
