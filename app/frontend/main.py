@@ -90,24 +90,29 @@ else:
 
 st.markdown("---")
 
-# CSS om de knop PERFECT CENTRAAL, 100% ROND en met een vette gloed te maken
+# Injecteer agressieve CSS om de knop PERFECT CENTRAAL en 100% ROND te maken
 st.markdown(
     """
     <style>
-    /* Centreer de knop-container op het scherm */
-    .stButton {
+    /* Centreer de Streamlit widget container op de pagina */
+    div[data-testid="stButton"] {
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
         width: 100% !important;
-        margin-top: 20px !important;
+        text-align: center !important;
+        margin: 30px auto !important;
     }
     
-    /* Maak de knop zelf een perfecte, strakke cirkel (Ookla stijl) */
-    .stButton > button {
+    /* Maak van de knop zelf een perfecte, strakke cirkel */
+    div[data-testid="stButton"] > button {
         width: 160px !important;
         height: 160px !important;
-        border-radius: 50% !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+        min-height: 160px !important;
+        max-height: 160px !important;
+        border-radius: 9999px !important; /* Voorkomt de 'squircle' vorm */
         border: 4px solid #2563eb !important;
         background-color: #020617 !important;
         color: #ffffff !important;
@@ -121,8 +126,8 @@ st.markdown(
         justify-content: center !important;
     }
     
-    /* Hover effecten voor de ronde knop */
-    .stButton > button:hover {
+    /* Hover en actieve klik effecten */
+    div[data-testid="stButton"] > button:hover {
         transform: scale(1.05) !important;
         box-shadow: 0 0 45px rgba(37, 99, 235, 0.8) !important;
         background-color: #2563eb !important;
@@ -130,8 +135,16 @@ st.markdown(
         border-color: #3b82f6 !important;
     }
     
-    .stButton > button:active {
+    div[data-testid="stButton"] > button:active {
         transform: scale(0.95) !important;
+    }
+    
+    /* Zorg dat Streamlit de tekst in de knop niet vervormt */
+    div[data-testid="stButton"] > button p {
+        font-size: 22px !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        line-height: 1 !important;
     }
     </style>
     """,
@@ -151,6 +164,7 @@ if st.button("SCAN"):
             time.sleep(0.04)
             angle = progress * 3.6
             
+            # Alle interne CSS-accolades zijn hier dubbel {{ }} om f-string crashes te voorkomen
             animation_placeholder.markdown(
                 f"""
                 <div class="speedtest-container">
@@ -161,7 +175,7 @@ if st.button("SCAN"):
                 </div>
                 <style>
                 /* Verberg de startknop tijdens het laden */
-                div.stButton {{ display: none !important; }}
+                div[data-testid="stButton"] {{ display: none !important; }}
                 
                 .speedtest-container {{ display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; width: 100%; }}
                 .circular-progress {{ position: relative; height: 160px; width: 160px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(37, 99, 235, 0.4); }}
@@ -197,30 +211,3 @@ if st.button("SCAN"):
                                 "summary": cve.get('summary', 'No description available.'),
                                 "dummy_impact": "Analysis pending...",
                                 "why_patch": "Review details below."
-                            })
-
-                # Resultaten op het scherm tonen
-                if not results:
-                    st.info(
-                        "📊 **Risk Profile: Low**\n\n"
-                        "No major open vulnerabilities were detected in our current registry mapping for this configuration. "
-                        "Please note that this is a baseline check and not a guarantee against all cyber threats."
-                    )
-                else:
-                    st.warning(f"⚠️ Found **{len(results)}** potential vulnerabilities matching your profile.")
-                    
-                    for vuln in results[:30]:
-                        severity = vuln.get('severity', 'Unknown')
-                        
-                        if severity != "Unknown" and float(severity) >= 7.0:
-                            badge = f"🔴 CRITICAL/HIGH ({severity})"
-                        elif severity != "Unknown" and float(severity) >= 4.0:
-                            badge = f"🟠 MEDIUM ({severity})"
-                        else:
-                            badge = f"🟡 LOW ({severity})"
-                            
-                        with st.expander(f"{vuln.get('id', 'CVE')} - {badge}"):
-                            st.markdown("### 🔍 What can this do?")
-                            st.write(vuln.get('dummy_impact', 'N/A'))
-                            st.markdown("### 🛠️ Why should you patch this?")
-                            st.write(vuln.get('why_patch', 'N/A'))
