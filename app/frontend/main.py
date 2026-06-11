@@ -177,8 +177,9 @@ if st.session_state.scan_completed:
     if total_found > 300:
         st.error(
             f"⚠️ **Kritiek Beveiligingsrisico!** Er zijn in totaal **{total_found}** kwetsbaarheden gevonden voor deze configuratie. "
-            f"Je gebruikt Lumenist Free. Hieronder tonen we de **300 meest kritieke exploits**. "
-            f"**[Upgrade naar Lumenist Premium]** om alle {total_found} resultaten in te zien en te exporteren."
+            f"De webversie van Lumenist toont standaard de **300 meest kritieke exploits** om het systeem niet te overbelasten. "
+            f"**Download de volledige Lumenist Desktop App (binnenkort beschikbaar)** om alle {total_found} problemen in te zien, "
+            f"automatische patch-adviezen te genereren en volledige compliance-rapporten te exporteren."
         )
     else:
         st.success(f"✓ Scan Succesvol Afgerond! Er zijn **{total_found}** kwetsbaarheden gevonden voor {selected_vendor} {selected_product}.")
