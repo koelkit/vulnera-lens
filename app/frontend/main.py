@@ -11,25 +11,38 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Initialiseer session_state om de scan-status bij te houden
+if "scan_active" not in st.session_state:
+    st.session_state.scan_active = False
+if "scan_completed" not in st.session_state:
+    st.session_state.scan_completed = False
+
 # ==============================================================================
-# 2. AGGRESSIVE CSS STYLE INJECTION
+# 2. AGGRESSIVE & UNIFIED CENTERING CSS
 # ==============================================================================
-# Dit blok dwingt de knop in het midden en maakt hem 100% rond (160x160px).
-# Het overschrijft de standaard HTML-containers van Streamlit.
 st.markdown(
     """
     <style>
-    /* 1. Centreer de Streamlit button-container op de pagina */
+    /* Dwing de hoofdcontainer om flex-centering toe te passen */
+    .interaction-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        margin: 40px 0 !important;
+        text-align: center !important;
+    }
+
+    /* Centreer de Streamlit button-container direct over de hele breedte */
     div.stButton {
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
         width: 100% !important;
-        margin: 40px 0 !important; /* Ruimte boven en onder de knop */
-        position: relative !important;
     }
     
-    /* 2. Transformeer de knop zelf naar een perfecte, strakke cirkel */
+    /* Maak van de knop een perfecte, strakke cirkel */
     div.stButton > button {
         width: 160px !important;
         height: 160px !important;
@@ -37,33 +50,32 @@ st.markdown(
         max-width: 160px !important;
         min-height: 160px !important;
         max-height: 160px !important;
-        border-radius: 9999px !important; /* Dwingt een 100% cirkel af */
-        border: 4px solid #2563eb !important; /* Felblauwe security rand */
-        background-color: #020617 !important; /* Donkere cybersecurity achtergrond */
+        border-radius: 9999px !important;
+        border: 4px solid #2563eb !important;
+        background-color: #020617 !important;
         color: #ffffff !important;
-        box-shadow: 0 0 30px rgba(37, 99, 235, 0.4) !important; /* Glow-effect */
+        box-shadow: 0 0 30px rgba(37, 99, 235, 0.4) !important;
         transition: all 0.3s ease-in-out !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        text-align: center !important;
-        cursor: pointer !important;
+        margin: 0 auto !important; /* Forceer centrering binnen de browser */
     }
     
-    /* 3. Hover-interactie voor de ronde knop */
+    /* Hover-interactie voor de ronde knop */
     div.stButton > button:hover {
-        transform: scale(1.05) !important; /* Subtiel groter worden */
-        box-shadow: 0 0 45px rgba(37, 99, 235, 0.8) !important; /* Sterkere gloed */
-        background-color: #2563eb !important; /* Knoophintergrond kleurt blauw */
+        transform: scale(1.05) !important;
+        box-shadow: 0 0 45px rgba(37, 99, 235, 0.8) !important;
+        background-color: #2563eb !important;
         border-color: #3b82f6 !important;
     }
     
-    /* 4. Klik-interactie (active state) */
+    /* Klik-interactie */
     div.stButton > button:active {
-        transform: scale(0.95) !important; /* Kinkt een klein beetje in */
+        transform: scale(0.95) !important;
     }
     
-    /* 5. Zorg dat de tekst "SCAN" strak gecentreerd blijft binnen de cirkel */
+    /* Tekst binnen de knop */
     div.stButton > button p {
         font-size: 24px !important;
         font-weight: 700 !important;
@@ -73,26 +85,18 @@ st.markdown(
         text-transform: uppercase !important;
     }
 
-    /* 6. CSS voor de voortgangsindicator/animatie zodat deze exact op dezelfde plek staat */
-    .scan-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        margin: 40px 0;
-    }
-
+    /* CSS voor de animatie-indicator zodat deze EXACT dezelfde afmetingen heeft */
     .pulsing-loader {
-        width: 160px;
-        height: 160px;
-        border-radius: 50%;
-        border: 4px dashed #2563eb;
+        width: 160px !important;
+        height: 160px !important;
+        border-radius: 50% !important;
+        border: 4px dashed #2563eb !important;
         animation: spin 4s linear infinite;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 30px rgba(37, 99, 235, 0.2);
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 0 30px rgba(37, 99, 235, 0.2) !important;
+        margin: 0 auto !important;
     }
 
     @keyframes spin {
@@ -104,7 +108,7 @@ st.markdown(
         color: #3b82f6;
         font-weight: 700;
         letter-spacing: 2px;
-        margin-top: 20px;
+        margin-top: 25px;
         text-transform: uppercase;
         animation: pulse 1.5s infinite alternate;
     }
@@ -126,7 +130,7 @@ st.subheader("Cyber Risk & CVE Dependency Calculator")
 st.write("Breng kwetsbaarheden binnen je infrastructuur en softwarepakketten direct in kaart.")
 
 # ==============================================================================
-# 4. INPUT FIELDS (VENDOR & PRODUCT)
+# 4. INPUT FIELDS
 # ==============================================================================
 col1, col2 = st.columns(2)
 with col1:
@@ -134,7 +138,6 @@ with col1:
 with col2:
     product = st.text_input("Product Naam", placeholder="bijv. http_server, windows_server")
 
-# Risicoberekening selectie (slider of specifieke versie)
 scan_type = st.radio("Kies scanmethode:", ["Time Capsule Scan (Laatste Update)", "Exact Version Scan"])
 
 if scan_type == "Time Capsule Scan (Laatste Update)":
@@ -143,23 +146,27 @@ else:
     exact_version = st.text_input("Exacte Versie", placeholder="bijv. 2.4.41")
 
 # ==============================================================================
-# 5. DYNAMIC INTERACTION ZONE (BUTTON & ANIMATION PLACEHOLDER)
+# 5. UNIFIED INTERACTION ZONE
 # ==============================================================================
-# Maak een lege placeholder aan. Hierin wisselen we de knop en de animatie uit.
 interaction_placeholder = st.empty()
 
-# Controleer of de gebruiker op de scan-knop heeft gedrukt
-# We stoppen de knop binnen de placeholder
-if interaction_placeholder.button("Scan"):
-    
-    # 1. Zodra er geklikt is, overschrijven we de placeholder met de gecentreerde animatie.
-    # Hierdoor verdwijnt de knop en verschijnt de animatie op PRECIES dezelfde plek.
+# Als de scan niet actief is, tonen we de knop netjes in de gecentreerde wrapper
+if not st.session_state.scan_active:
+    with interaction_placeholder.container():
+        st.markdown('<div class="interaction-wrapper">', unsafe_allow_html=True)
+        if st.button("Scan"):
+            st.session_state.scan_active = True
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# Als de scan getriggerd is, tonen we de animatie op EXACT dezelfde plek
+if st.session_state.scan_active and not st.session_state.scan_completed:
     for percent_complete in range(0, 101, 5):
         interaction_placeholder.markdown(
             f"""
-            <div class="scan-container">
+            <div class="interaction-wrapper">
                 <div class="pulsing-loader">
-                    <span style="color: #ffffff; font-weight: 700; font-size: 24px; transform: rotate(-{{percent_complete*3.6}}deg); display: inline-block;">
+                    <span style="color: #ffffff; font-weight: 700; font-size: 24px; display: inline-block;">
                         {percent_complete}%
                     </span>
                 </div>
@@ -168,20 +175,31 @@ if interaction_placeholder.button("Scan"):
             """,
             unsafe_allow_html=True
         )
-        time.sleep(0.1)  # Simuleer scantijd
-        
-    # 2. Maak de placeholder leeg als de scan klaar is (zodat de animatie verdwijnt)
-    interaction_placeholder.empty()
+        time.sleep(0.07)  # Snelheid van de animatie
+    
+    # Scan is klaar: pas de states aan en ververs de pagina
+    st.session_state.scan_active = False
+    st.session_state.scan_completed = True
+    st.rerun()
+
+# Na het scannen herstellen we de knop, zodat hij boven de resultaten blijft staan
+if st.session_state.scan_completed:
+    with interaction_placeholder.container():
+        st.markdown('<div class="interaction-wrapper">', unsafe_allow_html=True)
+        if st.button("Scan"):
+            st.session_state.scan_completed = False
+            st.session_state.scan_active = True
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # ==========================================================================
-    # 6. RESULTS SECTION (Wordt pas getoond NA het scannen)
+    # 6. RESULTS SECTION
     # ==========================================================================
     st.success("✓ Scan Succesvol Afgerond!")
-    
     st.markdown("### Gevonden Risicoprofielen")
     
     with st.expander("🚨 Critical & High Severity Vulnerabilities", expanded=True):
-        st.write(f"Er zijn kritieke kwetsbaarheden gevonden voor **{vendor} - {product}**.")
+        st.write(f"Er zijn kritieke kwetsbaarheden gevonden voor **{vendor if vendor else 'Onbekend'} - {product if product else 'Onbekend'}**.")
         st.info("Advies: Update per direct naar de meest recente stabiele runtime-versie om remote code execution (RCE) te voorkomen.")
         
     with st.expander("⚠️ Medium Severity Vulnerabilities"):
