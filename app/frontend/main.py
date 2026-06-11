@@ -143,7 +143,7 @@ st.markdown(
 )
 
 # ==============================================================================
-# 3. BACKEND API ENGINE (Echte data fetchen)
+# 3. BACKEND API ENGINE
 # ==============================================================================
 def fetch_real_cve_data(vendor_name, product_name):
     """Haalt live CVE data op via de publieke CIRCL CVE API."""
@@ -156,13 +156,12 @@ def fetch_real_cve_data(vendor_name, product_name):
         if response.status_code == 200:
             data = response.json()
             if isinstance(data, list):
-                return data[:30]  # Verhogen naar top 30 voor een betere lijst
+                return data[:30]
             elif isinstance(data, dict) and "results" in data:
                 return data["results"][:30]
     except Exception:
         pass
     
-    # Fallback gesimuleerde lijst als de API geen match heeft (zodat Windows Server altijd gevuld is)
     if "2012" in product_name:
         return [
             {"id": "CVE-2023-36563", "cvss": 8.8, "summary": "Microsoft Windows Server 2012 Information Disclosure Vulnerability waarmee aanvallers wachtwoord-hashes buitmaken."},
@@ -202,10 +201,11 @@ else:
 # ==============================================================================
 interaction_placeholder = st.empty()
 
+# Unieke key toegevoegd: key="scan_btn_initial"
 if not st.session_state.scan_active:
     with interaction_placeholder.container():
         st.markdown('<div class="interaction-wrapper">', unsafe_allow_html=True)
-        if st.button("Scan"):
+        if st.button("Scan", key="scan_btn_initial"):
             st.session_state.scan_active = True
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
@@ -238,31 +238,26 @@ if st.session_state.scan_active and not st.session_state.scan_completed:
 # 7. RESULTS SECTION
 # ==============================================================================
 if st.session_state.scan_completed:
+    # Unieke key toegevoegd: key="scan_btn_result"
     with interaction_placeholder.container():
         st.markdown('<div class="interaction-wrapper">', unsafe_allow_html=True)
-        if st.button("Scan"):
+        if st.button("Scan", key="scan_btn_result"):
             st.session_state.scan_completed = False
             st.session_state.scan_active = True
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Telling ophalen
     total_cves = len(st.session_state.cve_results)
-    
-    # Succes-banner met dynamische telling
     st.success(f"✓ Scan Succesvol Afgerond! Er zijn **{total_cves}** kwetsbaarheden gevonden voor {selected_vendor} {selected_product}.")
     
     st.markdown("### Gevonden Risicoprofielen")
     
     if total_cves > 0:
-        # Sorteer-dropdown toevoegen vlak boven de resultaten
         sort_order = st.selectbox(
             "Sorteer CVE's op CVSS-score:", 
             ["Hoog naar Laag (Meest Kritiek)", "Laag naar Hoog (Minst Kritiek)"]
         )
         
-        # Sorteer logica toepassen op de lijst
-        # Python sorteert standaard op basis van de 'cvss' sleutel. We vallen terug op 0.0 als er geen score is.
         reverse_bool = True if sort_order == "Hoog naar Laag (Meest Kritiek)" else False
         sorted_cves = sorted(
             st.session_state.cve_results, 
@@ -270,11 +265,9 @@ if st.session_state.scan_completed:
             reverse=reverse_bool
         )
         
-        # Splits de gesorteerde CVE's op in categorieën voor de expanders
         high_critical = [c for c in sorted_cves if float(c.get("cvss", 0) or 0) >= 7.0]
         medium_low = [c for c in sorted_cves if float(c.get("cvss", 0) or 0) < 7.0]
         
-        # 1. Critical & High Expander
         with st.expander(f"🚨 Critical & High Severity Vulnerabilities ({len(high_critical)})", expanded=True):
             if high_critical:
                 for cve in high_critical:
@@ -284,7 +277,6 @@ if st.session_state.scan_completed:
             else:
                 st.write("Geen kritieke kwetsbaarheden gevonden.")
 
-        # 2. Medium & Low Expander
         with st.expander(f"⚠️ Medium & Low Severity Vulnerabilities ({len(medium_low)})"):
             if medium_low:
                 for cve in medium_low:
