@@ -27,7 +27,6 @@ if "total_found" not in st.session_state:
 if "cve_results" not in st.session_state:
     st.session_state.cve_results = []
 
-# Gecureerde dropdown matrix om typefouten te voorkomen
 SOFTWARE_MATRIX = {
     "Microsoft": ["Windows Server 2012", "Windows Server 2016", "Windows Server 2019", "Exchange Server"],
     "Apache": ["http_server", "tomcat", "log4j"],
@@ -37,12 +36,53 @@ SOFTWARE_MATRIX = {
 }
 
 # ==============================================================================
-# 2. CSS STYLING (Gecorrigeerd voor absolute centrering bij resultaten)
+# 2. CYBERPUNK / ASTRA MUSIC STYLE CSS INJECTION
 # ==============================================================================
 st.markdown(
     """
     <style>
-    /* 1. Forceer absolute centrering op de hoofd-verticale blokken van Streamlit */
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Plus+Jakarta+Sans:wght@300;400;700&display=swap');
+
+    /* Globale resets naar Astra's donkere matrix */
+    html, body, [data-testid="stAppViewContainer"] {
+        background-color: #030712 !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        color: #f3f4f6 !important;
+    }
+
+    /* Subtiele achtergrond grid zoals astramusic.dev */
+    [data-testid="stAppViewContainer"]::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: 
+            linear-gradient(rgba(37, 99, 235, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(37, 99, 235, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    /* Titels met cyber glow */
+    h1 {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 700 !important;
+        letter-spacing: -1px !important;
+        background: linear-gradient(135deg, #ffffff 0%, #93c5fd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(37, 99, 235, 0.2);
+    }
+    
+    h3 {
+        font-family: 'JetBrains Mono', monospace !important;
+        color: #60a5fa !important;
+        font-size: 14px !important;
+        letter-spacing: 2px !important;
+        text-transform: uppercase;
+    }
+
+    /* Gecentreerde hoofdstructuur */
     div[data-testid="stVerticalBlock"] {
         display: flex !important;
         flex-direction: column !important;
@@ -50,8 +90,6 @@ st.markdown(
         justify-content: center !important;
         width: 100% !important;
     }
-
-    /* Zorg dat de binnenste wrappers van Streamlit ook netjes meecentreren */
     div[data-testid="stVerticalBlock"] > div {
         display: flex !important;
         flex-direction: column !important;
@@ -60,7 +98,27 @@ st.markdown(
         width: 100% !important;
     }
 
-    /* Houd de invulvelden en selectboxes wel gewoon strak links uitgelijnd */
+    /* Astra stijl Translucente Invoervelden (Glassmorphism) */
+    div[data-testid="stWidgetLabel"] p {
+        color: #9ca3af !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 12px !important;
+    }
+    
+    .stSelectbox div[data-baseweb="select"], .stSlider, div[data-testid="stRadio"] {
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 12px !important;
+        padding: 10px 15px !important;
+        backdrop-filter: blur(12px);
+        transition: all 0.3s ease;
+    }
+    .stSelectbox div[data-baseweb="select"]:hover {
+        border-color: rgba(59, 130, 246, 0.4) !important;
+        box-shadow: 0 0 15px rgba(37, 99, 235, 0.1);
+    }
+
+    /* Inputs links uitlijnen */
     div[data-testid="stHorizontalBlock"] > div,
     div[data-testid="stRadio"],
     div[data-testid="stSelectbox"] {
@@ -68,87 +126,105 @@ st.markdown(
         text-align: left !important;
     }
 
-    /* 2. De custom wrapper rondom de knop en loader */
+    /* Ultra-minimalistische Cirkelknop */
     .interaction-wrapper {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
         width: 100% !important;
-        margin: 40px auto !important;
-        text-align: center !important;
+        margin: 50px auto !important;
     }
 
-    /* 3. Target de specifieke Streamlit button container */
     div.stButton {
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        width: 100% !important;
-        margin: 0 auto !important;
     }
     
-    /* 4. Maak van de knop een perfecte cirkel en forceer centrering via margin-auto */
     div.stButton > button {
-        width: 160px !important;
-        height: 160px !important;
-        min-width: 160px !important;
-        max-width: 160px !important;
-        min-height: 160px !important;
-        max-height: 160px !important;
+        width: 150px !important;
+        height: 150px !important;
         border-radius: 9999px !important;
-        border: 4px solid #2563eb !important;
-        background-color: #020617 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: radial-gradient(circle, rgba(30, 41, 59, 0.5) 0%, rgba(3, 7, 18, 0.8) 100%) !important;
         color: #ffffff !important;
-        box-shadow: 0 0 30px rgba(37, 99, 235, 0.4) !important;
-        transition: all 0.3s ease-in-out !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        margin: 0 auto !important; 
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.02) !important;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 16px !important;
+        font-weight: 400 !important;
+        letter-spacing: 4px !important;
+        backdrop-filter: blur(8px);
     }
     
-    /* Hover-interactie */
+    /* Neon Cyber Hover van Astra */
     div.stButton > button:hover {
-        transform: scale(1.05) !important;
-        box-shadow: 0 0 45px rgba(37, 99, 235, 0.8) !important;
-        background-color: #2563eb !important;
+        transform: scale(1.03) !important;
+        border-color: #60a5fa !important;
+        background: #020617 !important;
+        box-shadow: 0 0 40px rgba(37, 99, 235, 0.3), inset 0 0 15px rgba(59, 130, 246, 0.2) !important;
+        color: #60a5fa !important;
     }
 
-    /* Reset margins voor p-tags binnen de knop */
     div.stButton > button p {
-        font-size: 24px !important;
-        font-weight: 700 !important;
-        letter-spacing: 2px !important;
         margin: 0 !important;
-        line-height: 1 !important;
         text-transform: uppercase !important;
     }
 
-    /* 5. De loader animatie (exact dezelfde uitlijning) */
+    /* Fijne lijn Cyber Loader */
     .pulsing-loader {
-        width: 160px !important;
-        height: 160px !important;
+        width: 150px !important;
+        height: 150px !important;
         border-radius: 50% !important;
-        border: 4px dashed #2563eb !important;
-        animation: spin 4s linear infinite;
+        border: 2px solid rgba(255, 255, 255, 0.05) !important;
+        border-top: 2px solid #3b82f6 !important;
+        border-bottom: 2px solid #60a5fa !important;
+        animation: spin 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        box-shadow: 0 0 30px rgba(37, 99, 235, 0.2) !important;
-        margin: 0 auto !important;
+        box-shadow: 0 0 30px rgba(37, 99, 235, 0.1) !important;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
     .scan-text {
-        color: #3b82f6;
-        font-weight: 700;
-        letter-spacing: 2px;
-        margin-top: 25px;
+        font-family: 'JetBrains Mono', monospace !important;
+        color: #60a5fa;
+        font-size: 11px;
+        letter-spacing: 3px;
+        margin-top: 30px;
         text-transform: uppercase;
-        animation: pulse 1.5s infinite alternate;
+        opacity: 0.8;
     }
-    @keyframes pulse { 0% { opacity: 0.6; } 100% { opacity: 1; } }
+
+    /* Astra Glassmorphism Expanders / Cards */
+    div[data-testid="stExpander"] {
+        background: rgba(15, 23, 42, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.03) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+        backdrop-filter: blur(20px);
+        margin-bottom: 15px !important;
+        width: 100% !important;
+    }
+    
+    div[data-testid="stExpander"] details {
+        border: none !important;
+    }
+
+    /* Sortering dropdown styling tweak */
+    .stSelectbox {
+        width: 100% !important;
+    }
+
+    /* Custom strakke banners */
+    div.stAlert {
+        background: rgba(30, 41, 59, 0.3) !important;
+        border: 1px solid rgba(239, 68, 68, 0.2) !important;
+        border-radius: 12px !important;
+        backdrop-filter: blur(10px);
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -157,8 +233,9 @@ st.markdown(
 # ==============================================================================
 # 3. HEADER SECTION
 # ==============================================================================
-st.title("🛡️ LUMENIST")
-st.subheader("Cyber Risk & CVE Dependency Calculator")
+st.markdown("<h3>Calculated Risk Registry</h3>", unsafe_allow_html=True)
+st.title("LUMENIST")
+st.write("Breng kwetsbaarheden binnen je infrastructuur en softwarepakketten direct in kaart via fine-line dependency checks.")
 
 # ==============================================================================
 # 4. INPUT DROPDOWNS
@@ -179,11 +256,10 @@ else:
     year = 2026
 
 # ==============================================================================
-# 5. UNIFIED INTERACTION ZONE (Knop & Loader)
+# 5. UNIFIED INTERACTION ZONE
 # ==============================================================================
 interaction_placeholder = st.empty()
 
-# Eerste status: toon de scan-knop
 if not st.session_state.scan_active:
     with interaction_placeholder.container():
         st.markdown('<div class="interaction-wrapper">', unsafe_allow_html=True)
@@ -192,7 +268,6 @@ if not st.session_state.scan_active:
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-# Tweede status: de actieve laad-animatie
 if st.session_state.scan_active and not st.session_state.scan_completed:
     total, cves = fetch_filtered_cve_data(selected_vendor, selected_product, year)
     st.session_state.total_found = total
@@ -203,9 +278,9 @@ if st.session_state.scan_active and not st.session_state.scan_completed:
             f"""
             <div class="interaction-wrapper">
                 <div class="pulsing-loader">
-                    <span style="color: #ffffff; font-weight: 700; font-size: 24px;">{percent_complete}%</span>
+                    <span style="color: #ffffff; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight:300;">{percent_complete}%</span>
                 </div>
-                <div class="scan-text">Mapping Local CVE Registry...</div>
+                <div class="scan-text">Indexing local registries...</div>
             </div>
             """,
             unsafe_allow_html=True
@@ -220,7 +295,6 @@ if st.session_state.scan_active and not st.session_state.scan_completed:
 # 6. RESULTS SECTION
 # ==============================================================================
 if st.session_state.scan_completed:
-    # Herbouw de knop boven de resultaten met een unieke key
     with interaction_placeholder.container():
         st.markdown('<div class="interaction-wrapper">', unsafe_allow_html=True)
         if st.button("Scan", key="scan_btn_result"):
@@ -232,16 +306,14 @@ if st.session_state.scan_completed:
     total_found = st.session_state.total_found
     cves_displayed = len(st.session_state.cve_results)
     
-    # DOWNLOAD CALL-TO-ACTION UPSELL BANNER
     if total_found > 300:
         st.error(
-            f"⚠️ **Kritiek Beveiligingsrisico!** Er zijn in totaal **{total_found}** kwetsbaarheden gevonden voor deze configuratie. "
-            f"De webversie van Lumenist toont standaard de **300 meest kritieke exploits** om het systeem niet te overbelasten. "
-            f"**Download de volledige Lumenist Desktop App (binnenkort beschikbaar)** om alle {total_found} problemen in te zien, "
-            f"automatische patch-adviezen te genereren en volledige compliance-rapporten te exporteren."
+            f"⚠️ **System Threshold Exceeded.** Er zijn in totaal **{total_found}** kwetsbaarheden gevonden. "
+            f"De sandbox webomgeving toont uitsluitend de **300 meest kritieke exploits**. "
+            f"**Download de Lumenist Desktop Client** voor diepgaande geautomatiseerde patch-adviezen en volledige logs."
         )
     else:
-        st.success(f"✓ Scan Succesvol Afgerond! Er zijn **{total_found}** kwetsbaarheden gevonden voor {selected_vendor} {selected_product}.")
+        st.success(f"✓ Scan completed. Er zijn **{total_found}** kwetsbaarheden gevonden.")
         
     st.markdown("### Gevonden Risicoprofielen")
     
