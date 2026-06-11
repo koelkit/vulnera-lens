@@ -18,31 +18,47 @@ if "scan_completed" not in st.session_state:
     st.session_state.scan_completed = False
 
 # ==============================================================================
-# 2. AGGRESSIVE & UNIFIED CENTERING CSS
+# 2. HARDCORE UNIFIED CENTERING CSS
 # ==============================================================================
 st.markdown(
     """
     <style>
-    /* Dwing de hoofdcontainer om flex-centering toe te passen */
+    /* 1. Target de interne blokken van Streamlit om CENTRERING af te dwingen */
+    div[data-testid="stVerticalBlock"] > div {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+
+    /* Zorg dat invoervelden en radiobuttons wel gewoon de normale breedte pakken */
+    div[data-testid="stHorizontalBlock"] > div,
+    div[data-testid="stRadio"] {
+        align-items: flex-start !important; /* Houd invoervelden links uitgelijnd */
+    }
+
+    /* 2. Onze eigen wrapper die zowel de knop als de animatie inpakt */
     .interaction-wrapper {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
         width: 100% !important;
-        margin: 40px 0 !important;
+        margin: 40px auto !important;
         text-align: center !important;
     }
 
-    /* Centreer de Streamlit button-container direct over de hele breedte */
+    /* 3. Overschrijf de Streamlit knop-container rigoureus */
     div.stButton {
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
         width: 100% !important;
+        text-align: center !important;
     }
     
-    /* Maak van de knop een perfecte, strakke cirkel */
+    /* 4. Maak van de knop een perfecte, gecentreerde cirkel */
     div.stButton > button {
         width: 160px !important;
         height: 160px !important;
@@ -59,10 +75,10 @@ st.markdown(
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        margin: 0 auto !important; /* Forceer centrering binnen de browser */
+        margin: 0 auto !important; /* Forceer absolute centrering */
     }
     
-    /* Hover-interactie voor de ronde knop */
+    /* Hover-interactie */
     div.stButton > button:hover {
         transform: scale(1.05) !important;
         box-shadow: 0 0 45px rgba(37, 99, 235, 0.8) !important;
@@ -85,7 +101,7 @@ st.markdown(
         text-transform: uppercase !important;
     }
 
-    /* CSS voor de animatie-indicator zodat deze EXACT dezelfde afmetingen heeft */
+    /* 5. CSS voor de animatie-indicator (exact dezelfde uitlijning) */
     .pulsing-loader {
         width: 160px !important;
         height: 160px !important;
@@ -150,7 +166,7 @@ else:
 # ==============================================================================
 interaction_placeholder = st.empty()
 
-# Als de scan niet actief is, tonen we de knop netjes in de gecentreerde wrapper
+# Als de scan niet actief is, tonen we de knop gecentreerd via de wrapper
 if not st.session_state.scan_active:
     with interaction_placeholder.container():
         st.markdown('<div class="interaction-wrapper">', unsafe_allow_html=True)
@@ -159,7 +175,7 @@ if not st.session_state.scan_active:
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-# Als de scan getriggerd is, tonen we de animatie op EXACT dezelfde plek
+# Als de scan loopt, tonen we de animatie op exact dezelfde plek
 if st.session_state.scan_active and not st.session_state.scan_completed:
     for percent_complete in range(0, 101, 5):
         interaction_placeholder.markdown(
@@ -175,14 +191,13 @@ if st.session_state.scan_active and not st.session_state.scan_completed:
             """,
             unsafe_allow_html=True
         )
-        time.sleep(0.07)  # Snelheid van de animatie
+        time.sleep(0.07)
     
-    # Scan is klaar: pas de states aan en ververs de pagina
     st.session_state.scan_active = False
     st.session_state.scan_completed = True
     st.rerun()
 
-# Na het scannen herstellen we de knop, zodat hij boven de resultaten blijft staan
+# Na het scannen herstellen we de knop boven de resultaten
 if st.session_state.scan_completed:
     with interaction_placeholder.container():
         st.markdown('<div class="interaction-wrapper">', unsafe_allow_html=True)
